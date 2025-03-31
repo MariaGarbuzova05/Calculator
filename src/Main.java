@@ -7,7 +7,7 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         Scanner sc = null;
-        FileWriter writer = null;  // Declare FileWriter here
+        FileWriter writer = null;
 
         try {
             // Attempt to read from file "input.txt"
@@ -17,92 +17,79 @@ public class Main {
             // Create FileWriter to write to output.txt
             writer = new FileWriter("output.txt");
 
+            while(sc.hasNextLine()) {
+                String expression = sc.nextLine(); // Read one line from file
+                String outputString = "";
 
-            if (!sc.hasNextLine()) {
-                String errorMessage = "Error! Empty File.";
-                System.out.println(errorMessage);
-                writeToFile(writer, errorMessage);
-                return;
-            }
-
-            String expression = sc.nextLine(); // Read one line from file
-
-            //Check if the expression consists only of white spaces
-            if (expression.trim().isEmpty()) {
-                String errorMessage = "Error! Empty Line.";
-                System.out.println(errorMessage);
-                writeToFile(writer, errorMessage);
-                return;
-            }
-            String[] s = expression.split(" "); // Split by spaces
-            double a = 0, b = 0;
-            boolean flag = true;
-
-            try {
-                a = Double.parseDouble(s[0]);
-                b = Double.parseDouble(s[2]);
-            } catch (NumberFormatException ex) {
-                String errorMessage = "Error! Not number";
-                System.out.println(errorMessage);
-                writeToFile(writer, errorMessage);
-                flag = false;
-                return;
-            } catch (ArrayIndexOutOfBoundsException ex){
-                String errorMessage = "Error! Invalid expression format. Missing operand.";
-                System.out.println(errorMessage);
-                writeToFile(writer, errorMessage);
-                return;
-            }
-
-            if ("+-*/".contains(s[1]) && flag) {
-                double result = 0;
-                String operationString = "";
-                switch (s[1]) {
-                    case "+":
-                        result = a + b;
-                        operationString = String.valueOf(a + b);
-                        break;
-                    case "-":
-                        result = a - b;
-                        operationString = String.valueOf(a - b);
-                        break;
-                    case "*":
-                        result = a * b;
-                        operationString = String.valueOf(a * b);
-                        break;
-                    case "/":
-                        if (b == 0.0){
-                            String errorMessage = "Error! Division by zero";
-                            System.out.println(errorMessage);
-                            writeToFile(writer, errorMessage);
-                            return;
-                        }
-                        else {
-                            result = a / b;
-                            operationString = String.valueOf(a / b);
-                        }
-                        break;
+                //Check if the expression consists only of white spaces
+                if (expression.trim().isEmpty()) {
+                    outputString = expression + " = Error! Empty Line.";
+                    System.out.println(outputString);
                 }
-                System.out.println(operationString);
-                writeToFile(writer, operationString);
+                else {
+                    String[] s = expression.split(" "); // Split by spaces
+                    double a = 0, b = 0;
+                    boolean flag = true;
 
-            } else {
-                String errorMessage = "Operation Error!";
-                System.out.println(errorMessage);
-                writeToFile(writer, errorMessage);
+                    try {
+                        a = Double.parseDouble(s[0]);
+                        b = Double.parseDouble(s[2]);
+                    } catch (NumberFormatException ex) {
+                        outputString = expression + " = Error! Not number";
+                        System.out.println(outputString);
+                        flag = false;
+
+                    } catch (ArrayIndexOutOfBoundsException ex) {
+                        outputString = expression + " = Error! Invalid expression format. Missing operand.";
+                        System.out.println(outputString);
+
+                    }
+
+                    if ("+-*/".contains(s[1]) && flag) {
+                        double result = 0;
+
+                        switch (s[1]) {
+                            case "+":
+                                result = a + b;
+                                outputString = expression + " = " + (a + b);
+                                break;
+                            case "-":
+                                result = a - b;
+                                outputString = expression + " = " + (a - b);
+                                break;
+                            case "*":
+                                result = a * b;
+                                outputString = expression + " = " + (a * b);
+                                break;
+                            case "/":
+                                if (b == 0.0) {
+                                    outputString = expression + " = Error! Division by zero";
+                                } else {
+                                    result = a / b;
+                                    outputString = expression + " = " + (a / b);
+                                }
+                                break;
+                        }
+                        if(outputString.isEmpty()){
+                            outputString = expression + " =  Operation Error!";
+                        }
+                        System.out.println(outputString);
+
+                    } else {
+                        outputString = expression + " = Operation Error!";
+                        System.out.println(outputString);
+                    }
+                }
+                writeToFile(writer, outputString);
             }
-
 
         } catch (FileNotFoundException e) {
             System.out.println("Error! File not found.");
-
         }   catch (java.util.NoSuchElementException e) {
-            System.out.println("Error! Empty File or No line to Read");
-        } catch (IOException e) {
+            System.out.println("Error! No line to Read");
+        }catch (IOException e) {
             System.out.println("Error writing to file: " + e.getMessage());
-        }
-
-        finally {
+        } finally {
             if (sc != null) {
                 sc.close(); // Close the scanner to release resources
             }
@@ -117,11 +104,8 @@ public class Main {
     }
 
     //Helper Method
-    private static void writeToFile(FileWriter writer, String text) {
-        try {
-            writer.write(text + "\n");
-        } catch (IOException e) {
-            System.out.println("Error writing to file: " + e.getMessage());
-        }
+    private static void writeToFile(FileWriter writer, String text) throws IOException {
+        writer.write(text + "\n");
+
     }
 }
